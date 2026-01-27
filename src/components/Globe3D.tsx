@@ -16,25 +16,22 @@ interface Globe3DProps {
 export function Globe3D({ size = 320, loadingText = 'Rendering...' }: Globe3DProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isReady, setIsReady] = useState(false);
+  const [isFullyLoaded, setIsFullyLoaded] = useState(false);
 
   // Initialize globe only when it enters viewport (lazy loading)
-  // This prevents blocking the main thread during initial page load
   useEffect(() => {
     if (!containerRef.current) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          // Small delay to ensure smooth scroll
           requestAnimationFrame(() => {
             setIsVisible(true);
           });
           observer.disconnect();
         }
       },
-      { rootMargin: '100px' } // Start loading 100px before visible
+      { rootMargin: '100px' }
     );
 
     observer.observe(containerRef.current);
@@ -44,7 +41,6 @@ export function Globe3D({ size = 320, loadingText = 'Rendering...' }: Globe3DPro
   useEffect(() => {
     if (!containerRef.current || !isVisible) return;
 
-    setIsLoading(true);
     const container = containerRef.current;
     let animationId: number;
     let isInitialized = false;
@@ -57,14 +53,15 @@ export function Globe3D({ size = 320, loadingText = 'Rendering...' }: Globe3DPro
       const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
       if (!gl) {
         console.warn('WebGL not supported, globe disabled');
+        setIsFullyLoaded(true); // Hide loading even if failed
         return;
       }
     } catch (e) {
       console.warn('WebGL check failed, globe disabled');
+      setIsFullyLoaded(true);
       return;
     }
 
-    // Use async IIFE to handle dynamic import
     const initGlobe = async () => {
       // Dynamic import to catch WebGPU errors on unsupported devices
       let ThreeGlobe;
@@ -73,15 +70,12 @@ export function Globe3D({ size = 320, loadingText = 'Rendering...' }: Globe3DPro
         ThreeGlobe = module.default;
       } catch (e) {
         console.warn('Failed to load three-globe (WebGPU not supported):', e);
+        setIsFullyLoaded(true);
         return;
       }
 
-      // Check if cleanup was called during async import
       if (cleanupCalled) return;
 
-      // ========================================
-      // SCENE SETUP
-      // ========================================
       let scene: THREE.Scene;
       let camera: THREE.PerspectiveCamera;
       let globe: InstanceType<typeof ThreeGlobe>;
@@ -101,9 +95,6 @@ export function Globe3D({ size = 320, loadingText = 'Rendering...' }: Globe3DPro
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         container.appendChild(renderer.domElement);
 
-        // ========================================
-        // GLOBE CREATION
-        // ========================================
         globe = new ThreeGlobe()
           .globeMaterial(
             new THREE.MeshPhongMaterial({
@@ -125,13 +116,11 @@ export function Globe3D({ size = 320, loadingText = 'Rendering...' }: Globe3DPro
             container.removeChild(renderer.domElement);
           }
         }
+        setIsFullyLoaded(true);
         return;
       }
 
-      // ========================================
-      // MARKER - Apple Maps style pin
-      // Cosenza, Calabria, Italy: 39.2988°N, 16.2539°E
-      // ========================================
+      // MARKER - Cosenza, Italy
       const COSENZA_LAT = 39.2988;
       const COSENZA_LNG = 16.2539;
       const GLOBE_RADIUS = 100;
@@ -175,31 +164,7 @@ export function Globe3D({ size = 320, loadingText = 'Rendering...' }: Globe3DPro
       markerGroup.lookAt(normal.x * 200, normal.y * 200, normal.z * 200);
       globe.add(markerGroup);
 
-      // ========================================
-      // LOAD COUNTRIES
-      // ========================================
-      const loadCountries = () => {
-        fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json')
-          .then((res) => res.json())
-          .then((worldData: Topology<{ countries: GeometryCollection }>) => {
-            const countries = feature(worldData, worldData.objects.countries);
-            globe
-              .polygonsData(countries.features)
-              .polygonCapColor(() => '#22c55e')
-              .polygonSideColor(() => '#166534')
-              .polygonStrokeColor(() => '#15803d')
-              .polygonAltitude(0.01);
-          })
-          .catch((err) => {
-            console.error('Failed to load country data:', err);
-          });
-      };
-
-      requestAnimationFrame(loadCountries);
-
-      // ========================================
       // LIGHTING
-      // ========================================
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
       scene.add(ambientLight);
 
@@ -207,9 +172,7 @@ export function Globe3D({ size = 320, loadingText = 'Rendering...' }: Globe3DPro
       directionalLight.position.set(100, 100, 100);
       scene.add(directionalLight);
 
-      // ========================================
       // MOUSE INTERACTION
-      // ========================================
       let isDragging = false;
       let prevMouse = { x: 0, y: 0 };
       let rotationY = -0.3;
@@ -245,9 +208,7 @@ export function Globe3D({ size = 320, loadingText = 'Rendering...' }: Globe3DPro
       container.addEventListener('pointerup', onPointerUp);
       container.addEventListener('pointerleave', onPointerUp);
 
-      // ========================================
       // ANIMATION
-      // ========================================
       const animate = () => {
         if (!isInitialized || cleanupCalled) return;
         animationId = requestAnimationFrame(animate);
@@ -262,21 +223,41 @@ export function Globe3D({ size = 320, loadingText = 'Rendering...' }: Globe3DPro
         renderer!.render(scene, camera);
       };
 
+      // Start animation immediately
       requestAnimationFrame(() => {
         if (!cleanupCalled) {
           isInitialized = true;
-          setIsLoading(false);
-          setIsReady(true);
           animate();
         }
       });
+
+      // LOAD COUNTRIES - This is the slow part
+      // Keep loading overlay until countries are ready
+      fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json')
+        .then((res) => res.json())
+        .then((worldData: Topology<{ countries: GeometryCollection }>) => {
+          if (cleanupCalled) return;
+
+          const countries = feature(worldData, worldData.objects.countries);
+          globe
+            .polygonsData(countries.features)
+            .polygonCapColor(() => '#22c55e')
+            .polygonSideColor(() => '#166534')
+            .polygonStrokeColor(() => '#15803d')
+            .polygonAltitude(0.01);
+
+          // Countries loaded - NOW hide the loading overlay
+          setIsFullyLoaded(true);
+        })
+        .catch((err) => {
+          console.error('Failed to load country data:', err);
+          // Even on error, hide loading to show basic globe
+          setIsFullyLoaded(true);
+        });
     };
 
     initGlobe();
 
-    // ========================================
-    // CLEANUP
-    // ========================================
     return () => {
       cleanupCalled = true;
       isInitialized = false;
@@ -290,8 +271,12 @@ export function Globe3D({ size = 320, loadingText = 'Rendering...' }: Globe3DPro
     };
   }, [size, isVisible]);
 
+  // Show loading when visible but not fully loaded
+  const showLoading = isVisible && !isFullyLoaded;
+
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative', width: size, height: size }}>
+      {/* Globe canvas container */}
       <div
         ref={containerRef}
         style={{
@@ -302,41 +287,56 @@ export function Globe3D({ size = 320, loadingText = 'Rendering...' }: Globe3DPro
           touchAction: 'none',
           overflow: 'hidden',
           borderRadius: '50%',
+          opacity: isFullyLoaded ? 1 : 0,
+          transition: 'opacity 0.5s ease',
         }}
       />
-      {isLoading && !isReady && (
+
+      {/* Loading overlay - covers globe until countries load */}
+      {showLoading && (
         <div
           style={{
             position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
+            top: 0,
+            left: 0,
+            width: size,
+            height: size,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, #1a365d 0%, #0f172a 100%)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '12px',
-            color: 'rgba(255, 255, 255, 0.7)',
-            fontSize: '14px',
-            fontFamily: 'inherit',
-            textAlign: 'center',
-            pointerEvents: 'none',
+            justifyContent: 'center',
+            gap: '16px',
           }}
         >
           <div
             style={{
-              width: '24px',
-              height: '24px',
-              border: '2px solid rgba(255, 255, 255, 0.2)',
+              width: '32px',
+              height: '32px',
+              border: '3px solid rgba(255, 255, 255, 0.2)',
               borderTopColor: '#3b82f6',
               borderRadius: '50%',
-              animation: 'spin 1s linear infinite',
+              animation: 'globe-spin 1s linear infinite',
             }}
           />
-          <span>{loadingText}</span>
+          <span
+            style={{
+              color: 'rgba(255, 255, 255, 0.8)',
+              fontSize: '13px',
+              fontFamily: 'inherit',
+              textAlign: 'center',
+              padding: '0 20px',
+              maxWidth: '80%',
+            }}
+          >
+            {loadingText}
+          </span>
         </div>
       )}
+
       <style>{`
-        @keyframes spin {
+        @keyframes globe-spin {
           to { transform: rotate(360deg); }
         }
       `}</style>
