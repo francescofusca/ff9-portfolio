@@ -49,6 +49,7 @@ const translations = {
     },
     globe: {
       text: "just find me :)",
+      loading: "Rendering globe... please wait",
     },
   },
   it: {
@@ -91,6 +92,7 @@ const translations = {
     },
     globe: {
       text: 'trovami :)',
+      loading: 'Sto renderizzando il globo... attendi',
     },
   },
 };
@@ -670,7 +672,7 @@ export default function App() {
             transition={{ duration: 0.6 }}
             className="globe-content"
           >
-            <Globe3D size={320} />
+            <Globe3D size={320} loadingText={t.globe.loading} />
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
