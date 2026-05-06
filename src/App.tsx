@@ -34,6 +34,9 @@ const translations = {
       title: 'Background & Skills',
       text1: "I'm a Software Engineer passionate about creating digital products that make a difference. With expertise in full-stack development, I focus on building scalable, user-centered solutions.",
       text2: 'Currently studying Computer Engineering while working on various projects in web development, security research, and emerging technologies.',
+      text3: 'In my free time I contribute to the Asahi Linux community, helping improve the kernel and the distro itself — see one of my fixes',
+      text3Link: 'here',
+      text3LinkUrl: 'https://github.com/francescofusca/Fixing-bluetooth-audio-AAC-Airpods-on-Asahi-Linux',
       technologies: 'TECHNOLOGIES',
       experience: 'EXPERIENCE',
     },
@@ -77,6 +80,9 @@ const translations = {
       title: 'Background & Competenze',
       text1: 'Sono un Software Engineer appassionato di creare prodotti digitali che fanno la differenza. Con esperienza nello sviluppo full-stack, mi concentro su soluzioni scalabili e user-centered.',
       text2: 'Attualmente studio Ingegneria Informatica mentre lavoro su vari progetti in sviluppo web, security research e tecnologie emergenti.',
+      text3: 'Nel tempo libero contribuisco alla community di Asahi Linux, aiutando a migliorare il kernel e la distro stessa — vedi uno dei miei fix',
+      text3Link: 'qui',
+      text3LinkUrl: 'https://github.com/francescofusca/Fixing-bluetooth-audio-AAC-Airpods-on-Asahi-Linux',
       technologies: 'TECNOLOGIE',
       experience: 'ESPERIENZA',
     },
@@ -136,6 +142,15 @@ const projectsData = {
       link: null,
       comingSoon: true,
     },
+    {
+      id: 5,
+      title: "HCCP Manager",
+      description: "Private Android app for restaurateurs to fully digitalize the HCCP process — no more handwritten or printed sheets.",
+      tech: ["Kotlin", "Android"],
+      images: ["/images/projects/hccpmanager1.jpeg"],
+      link: null,
+      comingSoon: false,
+    },
   ],
   it: [
     {
@@ -173,6 +188,15 @@ const projectsData = {
       images: ["/images/projects/pljudge.png"],
       link: null,
       comingSoon: true,
+    },
+    {
+      id: 5,
+      title: "HCCP Manager",
+      description: "App Android privata per ristoratori che digitalizza l'intero processo HCCP.",
+      tech: ["Kotlin", "Android"],
+      images: ["/images/projects/hccpmanager1.jpeg"],
+      link: null,
+      comingSoon: false,
     },
   ],
 };
@@ -578,6 +602,18 @@ export default function App() {
             >
               <p className="about-text">{t.about.text1}</p>
               <p className="about-text">{t.about.text2}</p>
+              <p className="about-text">
+                {t.about.text3}{' '}
+                <a
+                  href={t.about.text3LinkUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'var(--color-text)', textDecoration: 'underline', fontWeight: 500 }}
+                >
+                  {t.about.text3Link}
+                </a>
+                .
+              </p>
 
               <h3 className="about-subtitle">{t.about.technologies}</h3>
               <div className="skills-grid">
