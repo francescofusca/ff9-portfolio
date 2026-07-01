@@ -30,8 +30,8 @@ const translations = {
       comingSoon: 'Coming Soon',
     },
     university: {
-      label: 'Academic',
-      title: 'University Projects',
+      label: 'University',
+      title: 'Academic',
       subtitle: 'Projects developed during my studies at the University of Calabria.',
       viewOnGithub: 'View on GitHub',
     },
@@ -82,7 +82,7 @@ const translations = {
       comingSoon: 'In Arrivo',
     },
     university: {
-      label: 'Accademia',
+      label: 'Università',
       title: 'Progetti Universitari',
       subtitle: 'Progetti sviluppati durante i miei studi presso l\'Università della Calabria.',
       viewOnGithub: 'Vedi su GitHub',
