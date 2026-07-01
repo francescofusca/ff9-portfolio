@@ -29,6 +29,12 @@ const translations = {
       subtitle: 'These are some of my selected projects. Most of my work is private and developed for clients. Check my GitHub for more.',
       comingSoon: 'Coming Soon',
     },
+    university: {
+      label: 'Academic',
+      title: 'University Projects',
+      subtitle: 'Projects developed during my studies at the University of Calabria.',
+      viewOnGithub: 'View on GitHub',
+    },
     about: {
       label: 'About',
       title: 'Background & Skills',
@@ -74,6 +80,12 @@ const translations = {
       title: 'Progetti Selezionati',
       subtitle: 'Questi sono alcuni dei miei progetti selezionati. La maggior parte del mio lavoro è privato e sviluppato per clienti. Visita il mio GitHub per altro.',
       comingSoon: 'In Arrivo',
+    },
+    university: {
+      label: 'Accademia',
+      title: 'Progetti Universitari',
+      subtitle: 'Progetti sviluppati durante i miei studi presso l\'Università della Calabria.',
+      viewOnGithub: 'Vedi su GitHub',
     },
     about: {
       label: 'Chi Sono',
@@ -136,10 +148,10 @@ const projectsData = {
     {
       id: 4,
       title: "PL Judge",
-      description: "Mobile app for Android and iOS focused on powerlifting.",
+      description: "Mobile app for Android and iOS focused on powerlifting. Developed as a university project, still under active development to deliver a fully finalized 100% complete app.",
       tech: ["Kotlin"],
       images: ["/images/projects/pljudge.png"],
-      link: null,
+      link: "https://github.com/francescofusca/powerlifting-judge",
       comingSoon: true,
     },
     {
@@ -183,10 +195,10 @@ const projectsData = {
     {
       id: 4,
       title: "PL Judge",
-      description: "App mobile per Android e iOS dedicata al powerlifting.",
+      description: "App mobile per Android e iOS dedicata al powerlifting. Sviluppata come progetto universitario, ancora in fase di sviluppo attivo per arrivare a un'app finalizzata al 100%.",
       tech: ["Kotlin"],
       images: ["/images/projects/pljudge.png"],
-      link: null,
+      link: "https://github.com/francescofusca/powerlifting-judge",
       comingSoon: true,
     },
     {
@@ -197,6 +209,68 @@ const projectsData = {
       images: ["/images/projects/hccpmanager1.jpeg"],
       link: null,
       comingSoon: false,
+    },
+  ],
+};
+
+// University projects data
+const universityProjectsData = {
+  en: [
+    {
+      id: 1,
+      title: "University Student Dropout Prediction",
+      period: "Jun 2026",
+      association: "In association with University of Calabria",
+      description: "A Data Mining / Machine Learning project tackling a multiclass classification problem: predicting a university student's outcome — Dropout, Enrolled (still studying) or Graduate — from demographic, socio-economic and first-year academic performance data. The practical goal is to identify students at risk of dropping out early, so that targeted support measures can be put in place. This project was developed as the final assignment for a university Data Mining exam.",
+      tech: ["Python", "Machine Learning", "Data Mining"],
+      link: "https://github.com/francescofusca/student-dropout-prediction",
+    },
+    {
+      id: 2,
+      title: "Enoteca Mendoza",
+      period: "Sep 2025",
+      association: "In association with University of Calabria",
+      description: "Enoteca Mendoza is a web-based e-commerce application dedicated to wine sales, developed for a well-known restaurant located in Cosenza, Hostaria de Mendoza, specifically in the town of Rende. The project aims to deliver a complete, secure, and well-structured platform that allows users to browse a wine catalog, manage online purchases and orders, while administrators can fully control the system through a dedicated admin panel.",
+      tech: ["Web", "E-commerce", "Full-Stack"],
+      link: "https://github.com/francescofusca/EnotecaMendoza",
+    },
+    {
+      id: 3,
+      title: "PL Judge",
+      period: "Ongoing",
+      association: "In association with University of Calabria",
+      description: "Mobile app for Android and iOS focused on powerlifting, developed as a university project. Still under active development to deliver a fully finalized 100% complete app.",
+      tech: ["Kotlin"],
+      link: "https://github.com/francescofusca/powerlifting-judge",
+    },
+  ],
+  it: [
+    {
+      id: 1,
+      title: "University Student Dropout Prediction",
+      period: "Giu 2026",
+      association: "In associazione con l'Università della Calabria",
+      description: "Un progetto di Data Mining / Machine Learning che affronta un problema di classificazione multiclasse: prevedere l'esito di uno studente universitario — Abbandono, Iscritto (ancora in corso) o Laureato — a partire da dati demografici, socio-economici e dal rendimento accademico del primo anno. L'obiettivo pratico è identificare gli studenti a rischio di abbandono precoce, così da poter attivare misure di supporto mirate. Questo progetto è stato sviluppato come prova finale per un esame universitario di Data Mining.",
+      tech: ["Python", "Machine Learning", "Data Mining"],
+      link: "https://github.com/francescofusca/student-dropout-prediction",
+    },
+    {
+      id: 2,
+      title: "Enoteca Mendoza",
+      period: "Set 2025",
+      association: "In associazione con l'Università della Calabria",
+      description: "Enoteca Mendoza è un'applicazione e-commerce web dedicata alla vendita di vini, sviluppata per un noto ristorante di Cosenza, l'Hostaria de Mendoza, situato nel comune di Rende. Il progetto mira a fornire una piattaforma completa, sicura e ben strutturata che permette agli utenti di sfogliare un catalogo di vini, gestire acquisti e ordini online, mentre gli amministratori possono controllare completamente il sistema tramite un pannello di amministrazione dedicato.",
+      tech: ["Web", "E-commerce", "Full-Stack"],
+      link: "https://github.com/francescofusca/EnotecaMendoza",
+    },
+    {
+      id: 3,
+      title: "PL Judge",
+      period: "In corso",
+      association: "In associazione con l'Università della Calabria",
+      description: "App mobile per Android e iOS dedicata al powerlifting, sviluppata come progetto universitario. Ancora in fase di sviluppo attivo per arrivare a un'app finalizzata al 100%.",
+      tech: ["Kotlin"],
+      link: "https://github.com/francescofusca/powerlifting-judge",
     },
   ],
 };
@@ -354,7 +428,7 @@ function ProjectCard({ project, comingSoonText }: { project: typeof projectsData
     </div>
   );
 
-  if (project.link && !project.comingSoon) {
+  if (project.link) {
     return (
       <a href={project.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
         {content}
@@ -374,6 +448,7 @@ export default function App() {
 
   const t = translations[lang];
   const projects = projectsData[lang];
+  const universityProjects = universityProjectsData[lang];
   const experiences = experiencesData[lang];
 
   // Auto-dismiss intro after 1.5 seconds
@@ -576,6 +651,58 @@ export default function App() {
               >
                 <ProjectCard project={project} comingSoonText={t.projects.comingSoon} />
               </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* University Projects Section */}
+      <section id="university" className="section">
+        <div className="wrapper">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="section-header"
+          >
+            <span className="section-label">{t.university.label}</span>
+            <h2 className="section-title">{t.university.title}</h2>
+            <p className="section-subtitle">{t.university.subtitle}</p>
+          </motion.div>
+
+          <div className="university-grid">
+            {universityProjects.map((project, i) => (
+              <motion.a
+                key={project.id}
+                href={project.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="university-card"
+              >
+                <div className="experience-header">
+                  <div>
+                    <h3 className="experience-title">{project.title}</h3>
+                    <p className="experience-company">{project.association}</p>
+                  </div>
+                  <span className="experience-period">{project.period}</span>
+                </div>
+                <p className="experience-desc">{project.description}</p>
+                <div className="project-tags" style={{ marginTop: '16px' }}>
+                  {project.tech.map((techName) => (
+                    <span key={techName} className="project-tag">{techName}</span>
+                  ))}
+                </div>
+                <span className="university-link">
+                  {t.university.viewOnGithub}
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M7 17L17 7M17 7H7M17 7V17"/>
+                  </svg>
+                </span>
+              </motion.a>
             ))}
           </div>
         </div>
