@@ -1,73 +1,84 @@
-# React + TypeScript + Vite
+# ff9 — Personal Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Personal portfolio of **Francesco Fusca** (ff9), a Software Engineer from Italy
+working across web development, cybersecurity, and machine learning.
 
-Currently, two official plugins are available:
+A single-page site with a bilingual (English / Italian) interface, smooth
+motion, and an interactive 3D globe pinpointing my location.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+🔗 **Live:** https://github.com/francescofusca/ff9-portfolio
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Bilingual UI** — full English/Italian switch, all copy localized in-app.
+- **Animated intro & typewriter hero** built with Framer Motion.
+- **Selected Projects** — auto-rotating image carousels, "Coming Soon" badges,
+  and cards that link straight to their repos.
+- **University Projects** — a dedicated section for academic work (Student
+  Dropout Prediction, Enoteca Mendoza, PL Judge), each linking to GitHub.
+- **Interactive 3D globe** (`three` + `three-globe`) rendered lazily when it
+  scrolls into view, with a marker on Cosenza, Italy.
+- **Responsive** layout tuned for desktop and mobile.
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+| Area       | Tools                                             |
+| ---------- | ------------------------------------------------- |
+| Framework  | React 19 + TypeScript                             |
+| Build      | Vite 7                                            |
+| Styling    | Tailwind CSS v4 + hand-written CSS (`src/index.css`) |
+| Animation  | Framer Motion                                     |
+| 3D         | three, three-globe, topojson-client               |
+| Linting    | ESLint                                            |
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Getting Started
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+```bash
+# install dependencies
+npm install
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# start the dev server (with HMR)
+npm run dev
+
+# type-check and build for production into dist/
+npm run build
+
+# preview the production build locally
+npm run preview
+
+# lint
+npm run lint
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The dev server runs on the URL Vite prints (default `http://localhost:5173`).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Project Structure
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+public/images/projects/   # project screenshots & profile photo
+src/
+  App.tsx                 # the whole page: i18n, sections, project data
+  components/
+    Intro.tsx             # animated intro overlay
+    Globe3D.tsx           # lazy-loaded interactive 3D globe
+  index.css               # global styles (Tailwind v4 + custom CSS)
+  main.tsx                # app entry
+```
+
+The live page is rendered from `App.tsx`, which holds the translations,
+the project/experience data, and every section inline.
+
+### Adding a project
+
+Add the screenshot to `public/images/projects/`, then add an entry to **both**
+the `en` and `it` arrays of `projectsData` (or `universityProjectsData`) in
+`src/App.tsx`.
+
+## Deployment
+
+The build outputs static files to `dist/` and uses relative asset paths
+(`base: './'` in `vite.config.ts`), so it can be served from any static host.
+
+---
+
+Design inspired by Linus Rogge and Gazi Jarin.
