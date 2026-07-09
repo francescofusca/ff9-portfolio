@@ -538,12 +538,14 @@ body {
   border-radius: 12px;
   text-decoration: none;
   color: inherit;
-  transition: all 0.2s ease;
+  /* Only border-color transitions here: `transform`/`opacity` are driven by
+     Framer Motion, and a CSS transition on them fights its per-frame writes. */
+  transition: border-color 0.2s ease;
+  backface-visibility: hidden;
 }
 
 .university-card:hover {
   border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-2px);
 }
 
 .university-link {
@@ -555,14 +557,11 @@ body {
   font-weight: 500;
   font-family: var(--font-mono);
   color: var(--color-text);
+  transition: gap 0.2s ease;
 }
 
 .university-card:hover .university-link {
   gap: 10px;
-}
-
-.university-link svg {
-  transition: transform 0.2s ease;
 }
 
 @media (max-width: 640px) {

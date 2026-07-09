@@ -15,26 +15,25 @@ interface Globe3DProps {
 
 export function Globe3D({ size = 320, loadingText = 'Rendering...' }: Globe3DProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const inViewRef = useRef(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isFullyLoaded, setIsFullyLoaded] = useState(false);
 
-  // Initialize globe only when it enters viewport (lazy loading)
+  // Initialize globe only when it enters viewport (lazy loading), and keep
+  // observing so the render loop can idle while the globe is off-screen.
   useEffect(() => {
-    if (!containerRef.current) return;
+    const el = containerRef.current;
+    if (!el) return;
 
     const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          requestAnimationFrame(() => {
-            setIsVisible(true);
-          });
-          observer.disconnect();
-        }
+      ([entry]) => {
+        inViewRef.current = entry.isIntersecting;
+        if (entry.isIntersecting) setIsVisible(true);
       },
       { rootMargin: '100px' }
     );
 
-    observer.observe(containerRef.current);
+    observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
@@ -86,13 +85,16 @@ export function Globe3D({ size = 320, loadingText = 'Rendering...' }: Globe3DPro
         camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
         camera.position.z = 220;
 
+        // On high-DPI screens the extra pixels already smooth the edges, so
+        // MSAA is pure cost. Clamping the ratio keeps the draw buffer sane.
+        const dpr = window.devicePixelRatio || 1;
         renderer = new THREE.WebGLRenderer({
-          antialias: true,
+          antialias: dpr < 2,
           alpha: true,
           powerPreference: 'high-performance',
         });
         renderer.setSize(size, size);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setPixelRatio(Math.min(dpr, 1.75));
         container.appendChild(renderer.domElement);
 
         globe = new ThreeGlobe()
@@ -213,6 +215,10 @@ export function Globe3D({ size = 320, loadingText = 'Rendering...' }: Globe3DPro
         if (!isInitialized || cleanupCalled) return;
         animationId = requestAnimationFrame(animate);
 
+        // Idle while scrolled out of view: rendering here competes with the
+        // browser's scrolling/compositing and makes the whole page stutter.
+        if (!inViewRef.current) return;
+
         if (autoRotate) {
           rotationY += 0.001;
         }
@@ -241,6 +247,7 @@ export function Globe3D({ size = 320, loadingText = 'Rendering...' }: Globe3DPro
           const countries = feature(worldData, worldData.objects.countries);
           globe
             .polygonsData(countries.features)
+            .polygonsTransitionDuration(0)
             .polygonCapColor(() => '#22c55e')
             .polygonSideColor(() => '#166534')
             .polygonStrokeColor(() => '#15803d')
