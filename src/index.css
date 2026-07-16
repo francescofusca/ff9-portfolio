@@ -548,6 +548,16 @@ body {
   border-color: rgba(255, 255, 255, 0.15);
 }
 
+/* Titles here run long, so keep the period from being squeezed or wrapped. */
+.university-card .experience-header {
+  gap: 16px;
+}
+
+.university-card .experience-period {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 .university-link {
   display: inline-flex;
   align-items: center;
